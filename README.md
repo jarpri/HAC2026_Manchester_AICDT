@@ -8,6 +8,11 @@ reduced to two numbers, summed intensity and lit-pixel count, giving 56 curves p
 Reconstructions are scored on voxel overlap with the true shape plus the distance between the
 boundary curves of 2D projections. `docs/challenge_info.md` has the rules.
 
+**Reconstructions to submit live in [`results/`](results/), one directory per approach.** Each
+carries a README with its score and a pointer to the branch where the method, the full
+scoreboard and the working are kept — `main` holds the outputs, the branches hold how they were
+made. See [Approaches](#approaches) below.
+
 ## Install
 
 `make` does the whole setup; `pyproject.toml` is the only dependency list.
@@ -275,6 +280,29 @@ pytest
 pytest -m "not slow"     # skip the extraction-scale ones
 ```
 
+## Approaches
+
+Each approach keeps its reconstructions in `results/` on `main` and its method on its own
+branch. The branch is where the scoreboard, the validation and the things that were tried and
+rejected live; `main` is just where the STLs land.
+
+| `results/` directory | score (public, /6) | branch with the method |
+|---|---|---|
+| [`lpd_referee/`](results/lpd_referee) | **5.5632** | [`harry/lpd-referee`](../../tree/harry/lpd-referee) — `submission/`, `BENCHMARKS.md` |
+| [`lpd_convex_fallback/`](results/lpd_convex_fallback) | 5.5442 | same branch; the conservative alternative |
+| [`convex/`](results/convex) | 5.5442 | `main` — the convex stage, an input to the above |
+| [`lpd/`](results/lpd) | 5.4046 | `main` — convex start + flow, as originally shipped |
+| [`depth_lpd_flow/`](results/depth_lpd_flow) | not yet scored here | `add-depth-lpd-flow-submission` |
+
+Scores are the organisers' own measure on the three public models, maximum 6, and they are a
+thin proxy: two of those three bodies are near-convex and nothing is measured on models 4-10.
+`scripts/benchmark.py <dir> --models 1 2 3` scores any directory of reconstructions the same
+way, so a new approach can be put on the same footing in one command.
+
+Work on other branches has not been scored on this measure yet -- the depth LPD flow above, a
+transformer, a Gauss-Newton solver. Running `benchmark.py` on their outputs is what would make
+them comparable, and takes about a minute per directory.
+
 ## Layout
 
 ```
@@ -285,7 +313,8 @@ hac26/            conventions, geometry, field, shapes, noise, shape_library, cu
                   library_io, library_metrics
 scripts/          entry points
 models/           trained convex solver and calibrated instrument; models/load.py loads them
-results/          reconstructions: convex/ the convex stage's starts, lpd/ the flow's
+results/          reconstructions, one directory per approach, each with a README
+                  and a pointer to the branch that made it; see Approaches above
 dataset/          challenge data, not tracked
 runs/             training output, not tracked
 tests/
